@@ -1,0 +1,26 @@
+{
+	"schemaVersion": 1,
+	"id": "nsight-loader",
+	"version": "${version}",
+	"name": "nsight-loader",
+	"description": "Inject NSight into Minecraft, so you dont have to rely on tricks to launch it.",
+	"authors": [
+		"xirreal"
+	],
+	"contact": {
+		"sources": "https://github.com/xirreal/nsight-loader"
+	},
+	"license": "MIT",
+	"icon": "assets/nsight-loader/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+          "dev.xirreal.Main"
+		]
+	},
+	"depends": {
+		"fabricloader": ">=0.15.10",
+		"minecraft": "~1.20.4",
+		"java": ">=21"
+	}
+}
