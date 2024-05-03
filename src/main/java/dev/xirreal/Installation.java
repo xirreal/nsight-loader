@@ -12,14 +12,21 @@ public class Installation extends Structure {
     public short versionPatch;
     public String installationPath;
 
-    public static String getSKU(Installation installation) {
-        return switch (installation.sku) {
-            case 0 -> "NGFX_NSIGHT_SKU_UNKNOWN";
-            case 1 -> "NGFX_NSIGHT_SKU_PUBLIC";
-            case 2 -> "NGFX_NSIGHT_SKU_PRO";
-            case 3 -> "NGFX_NSIGHT_SKU_INTERNAL";
-            default -> "Unknown";
+    public String getSku() {
+        return switch (sku) {
+            case SkuType.NGFX_NSIGHT_SKU_UNKNOWN -> "NGFX_NSIGHT_SKU_UNKNOWN";
+            case SkuType.NGFX_NSIGHT_SKU_PUBLIC -> "NGFX_NSIGHT_SKU_PUBLIC";
+            case SkuType.NGFX_NSIGHT_SKU_PRO -> "NGFX_NSIGHT_SKU_PRO";
+            case SkuType.NGFX_NSIGHT_SKU_INTERNAL -> "NGFX_NSIGHT_SKU_INTERNAL";
+            default -> "Unknown SKU";
         };
+    }
+
+    public interface SkuType {
+        int NGFX_NSIGHT_SKU_UNKNOWN = 0;
+        int NGFX_NSIGHT_SKU_PUBLIC = 1;
+        int NGFX_NSIGHT_SKU_PRO = 2;
+        int NGFX_NSIGHT_SKU_INTERNAL = 3;
     }
 
     @Override

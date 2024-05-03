@@ -1,10 +1,9 @@
 package dev.xirreal;
 
 import com.sun.jna.Native;
-import com.sun.jna.Structure;
 import com.sun.jna.ptr.IntByReference;
-import com.sun.jna.ptr.PointerByReference;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -12,7 +11,7 @@ public class NGFX implements NativeNGFX {
     private final NativeNGFX _native;
 
     public NGFX(final String dllPath) throws IOException {
-        if(!new java.io.File(dllPath).exists()) {
+        if(!new File(dllPath).exists()) {
             throw new IOException("DLL not found: " + dllPath);
         }
         

@@ -1,8 +1,8 @@
 package dev.xirreal;
 
 public class Result {
-    int code = 0;
-    String message = "";
+    int code;
+    String message;
 
     public Result(int code) {
         this.code = code;

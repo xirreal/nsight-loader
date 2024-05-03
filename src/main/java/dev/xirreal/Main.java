@@ -76,7 +76,7 @@ public class Main implements ModInitializer {
 				LOGGER.error("Frame debugger is not available for this installation");
 				return;
 			}
-
+			LOGGER.info("Found activity " + activity.getType() + ": "+ activity.description);
 			Result result = ngfx.Inject(newestInstallation, activity);
 			LOGGER.info("Injection result: " + result);
 		} catch (Exception e) {
