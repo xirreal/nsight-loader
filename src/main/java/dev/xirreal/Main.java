@@ -56,9 +56,11 @@ public class Main implements ModInitializer {
 		String optionString = System.getProperty("debugger");
 		if(optionString != null) {
 			if(optionString.equalsIgnoreCase("renderdoc")) {
-				option = JOptionPane.NO_OPTION;
-			} else if(optionString.equalsIgnoreCase("nsight")) {
+				option = JOptionPane.CANCEL_OPTION;
+			} else if(optionString.equalsIgnoreCase("nsight-gpu")) {
 				option = JOptionPane.YES_OPTION;
+			} else if(optionString.equalsIgnoreCase("nsight-frame")) {
+				option = JOptionPane.NO_OPTION;
 			}
 		}
 
@@ -70,16 +72,16 @@ public class Main implements ModInitializer {
 			} catch (ReflectiveOperationException | UnsupportedLookAndFeelException ignored) {
 			}
 
-			String[] options = {"NSight", "Renderdoc"};
+			String[] options = {"NSight GPU Trace", "NSight Frame Profiler", "Renderdoc"};
 
-			JFrame frame = new JFrame("Shader debugging");
+			JFrame frame = new JFrame("Choose a debugger to be loaded");
 
 			frame.setUndecorated( true );
 			frame.setVisible( true );
 			frame.setLocationRelativeTo( null );
 			frame.requestFocus();
 
-			option = JOptionPane.showOptionDialog(frame, "Pick the debugger to be loaded", "Shader debugging", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+			option = JOptionPane.showOptionDialog(frame, "Closing the dialog will skip injection.\n\nNSight or Renderdoc must be installed for this to work properly.", "Shader debugging", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null,
 					options, null);
 
 			frame.dispose();
@@ -88,29 +90,31 @@ public class Main implements ModInitializer {
 		}
 
 		if (option == JOptionPane.CLOSED_OPTION) {
-			LOGGER.info("Skipping injection...");
+			LOGGER.info("Modal closed, skipping injection...");
 			return;
 		}
 
-		if(option != JOptionPane.OK_OPTION) {
-			LOGGER.info("Loading Renderdoc injector...");
+		if(option == JOptionPane.CANCEL_OPTION) {
+			LOGGER.info("Injecting Renderdoc...");
 			String RENDERDOC_DLL = unpackResource("renderdoc.dll");
 			try {
 				System.load(RENDERDOC_DLL);
-				LOGGER.info("Renderdoc loaded successfully");
+				LOGGER.info("Renderdoc loaded successfully.");
 			} catch (UnsatisfiedLinkError e) {
 				LOGGER.error("Failed to load Renderdoc: ", e);
 			}
 			return;
 		}
 
-		LOGGER.info("Loading NSight...");
+		LOGGER.info("Injecting NSight...");
 
 		String NGFX_DLL = unpackResource("NGFX_Injection.dll");
 
+		int activityType = option == JOptionPane.YES_OPTION ? Activity.ActivityType.NGFX_INJECTION_ACTIVITY_GPU_TRACE : Activity.ActivityType.NGFX_INJECTION_ACTIVITY_FRAME_DEBUGGER;
+
 		try {
 			NGFX ngfx = new NGFX(NGFX_DLL);
-			LOGGER.info("NGFX loaded successfully");
+			LOGGER.info("NGFX Injection API loaded. Searching for NSight...");
 
 			List<Installation> installations = ngfx.EnumerateInstallations();
 			// Find newest installation
@@ -127,18 +131,17 @@ public class Main implements ModInitializer {
 				LOGGER.error("No installations found");
 				return;
 			}
-			LOGGER.info("Found installation on " + newestInstallation.installationPath + ": drive");
+			LOGGER.info("Found NSight on " + newestInstallation.installationPath + ": drive");
 
 			List<Activity> activities = ngfx.EnumerateActivities(newestInstallation);
-			Activity activity = activities.stream().filter(a -> a.type == Activity.ActivityType.NGFX_INJECTION_ACTIVITY_FRAME_DEBUGGER).findFirst().orElse(null);
+			Activity activity = activities.stream().filter(a -> a.type == activityType).findFirst().orElse(null);
 
 			if(activity == null) {
-				LOGGER.error("Frame debugger is not available for this installation");
+				LOGGER.error("The requested activity is not available for this installation. Skipping injection...");
 				return;
 			}
-			LOGGER.info("Found activity " + activity.getType() + ": "+ activity.description);
 			Result result = ngfx.Inject(newestInstallation, activity);
-			LOGGER.info("Injection result: " + result);
+			LOGGER.info("NGFX Injection result: " + result);
 		} catch (Exception e) {
 			LOGGER.error("Failed to load NGFX", e);
 		}

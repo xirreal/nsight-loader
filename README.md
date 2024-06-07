@@ -16,6 +16,7 @@ This version-agnostic Fabric mod allows you to inject NSight or Renderdoc into M
 You can skip the dialog (useful for some dev environments) by setting the `debugging` flag to the debugger you want.
 Allowed options are:
 ```shell
--Ddebugger=nsight
+-Ddebugger=nsight-frame
+-Ddebugger=nsight-gpu
 -Ddebugger=renderdoc
 ```
